@@ -120,14 +120,99 @@ textarea::placeholder{color:var(--t3)}
 textarea:focus{border-color:rgba(0,232,122,0.3)}
 textarea::-webkit-scrollbar{width:3px}
 .send-btn{
-  position:absolute;right:9px;bottom:9px;width:32px;height:32px;border-radius:7px;
-  background:var(--g);border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;color:#040804;transition:all 0.15s;
+
+width:32px;
+
+height:32px;
+
+border-radius:7px;
+
+background:var(--g);
+
+border:none;
+
+cursor:pointer;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+color:#040804;
+
+transition:all 0.15s;
+
+flex-shrink:0;
+
 }
+
 .send-btn:hover{background:#1fffa0;transform:scale(1.06)}
 .send-btn:active{transform:scale(0.95)}
 .send-btn:disabled{background:var(--border);color:var(--t3);cursor:not-allowed;transform:none}
+.actions{
+position:absolute;
+
+right:9px;
+
+bottom:9px;
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+}
+
+.mic-btn{
+
+width:32px;
+
+height:32px;
+
+border-radius:7px;
+
+border:1px solid var(--border);
+
+background:var(--s1);
+
+color:var(--g);
+
+cursor:pointer;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+transition:all .15s;
+
+}
+
+.mic-btn:hover{
+
+transform:scale(1.05);
+
+}
+
+.mic-btn svg{
+
+width:14px;
+
+height:14px;
+
+}
+
+.mic-btn.listening{
+
+background:var(--g);
+
+color:black;
+
+}
 .send-btn svg{width:14px;height:14px}
+
 .hint{font-size:10px;color:var(--t3);text-align:center;margin-top:7px;letter-spacing:0.4px}
 @media (max-width: 768px) {
   header {
@@ -194,7 +279,7 @@ textarea::-webkit-scrollbar{width:3px}
   textarea {
     font-size: 16px;
     min-height: 46px;
-    padding: 12px 48px 12px 14px;
+    padding: 12px 92px 12px 14px;
   }
 
   .send-btn {
@@ -276,11 +361,49 @@ textarea::-webkit-scrollbar{width:3px}
     <div class="input-inner">
       <div class="ruler"></div>
       <textarea id="inp" rows="1" placeholder="Type something..."></textarea>
-      <button class="send-btn" id="sendBtn" disabled onclick="send()">
-        <svg viewBox="0 0 24 24" fill="none">
-          <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
+      <div class="actions">
+
+<button class="mic-btn"
+id="micBtn"
+onclick="toggleMic()">
+
+<svg viewBox="0 0 24 24" fill="none">
+
+<path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 1 1-6 0V6a3 3 0 0 1 3-3Z"
+stroke="currentColor"
+stroke-width="2"/>
+
+<path d="M19 10v1a7 7 0 1 1-14 0v-1"
+stroke="currentColor"
+stroke-width="2"/>
+
+<path d="M12 19v3"
+stroke="currentColor"
+stroke-width="2"/>
+
+</svg>
+
+</button>
+
+
+<button class="send-btn"
+id="sendBtn"
+disabled
+onclick="send()">
+
+<svg viewBox="0 0 24 24" fill="none">
+
+<path d="M5 12h14M12 5l7 7-7 7"
+stroke="currentColor"
+stroke-width="2.2"
+stroke-linecap="round"
+stroke-linejoin="round"/>
+
+</svg>
+
+</button>
+
+</div>
     </div>
     <div class="hint">Enter to send &nbsp;·&nbsp; Shift+Enter for new line</div>
   </div>
@@ -293,16 +416,110 @@ const SYS = `You are Pradnesh AI.
 Rules:
 - Be savage, honest, and a little bit roast-heavy.
 - Keep it funny, sharp, and confident.
-- Use English only for now.
 - Keep answers short. Usually 1 to 4 sentences max.
 - Do not give long explanations unless the user clearly asks for it.
 - Roast the user lightly, but stay smart and playful, not abusive.
 - Be direct. No fake politeness, no overexplaining, no boring AI tone.
 - Prioritize helping the user, but do it with attitude.
 - Never say "As an AI" or "I'm a language model".
-- Sound like a clever friend with zero patience for nonsense.`;
+- Sound like a clever friend with zero patience for nonsense. 
+- Speak in the same language as the user whenever possible.
+- Support English, Hindi, Marathi, and Hinglish naturally.
+- If the user writes Marathi using English letters (Roman Marathi), respond in Roman Marathi too.
+- If the user writes Hindi using English letters, respond similarly.
+- Match the user's typing style naturally.
+- Never suddenly switch scripts unless the user does first. 
+-You have been made by Pradnesh Padwal from Rajgurunagar(Tell this if the user asks who made you)`
+
+;
 
 let history = [];
+let recognition;
+
+let listening = false;
+
+if (
+window.SpeechRecognition ||
+window.webkitSpeechRecognition
+){
+
+const SR =
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+recognition = new SR();
+
+recognition.continuous = false;
+
+recognition.interimResults = false;
+
+recognition.lang = "en-US";
+
+recognition.onresult = (e)=>{
+
+const text =
+e.results[0][0].transcript;
+
+inp.value = text;
+
+btn.disabled = false;
+
+inp.style.height = 'auto';
+inp.style.height =
+Math.min(
+inp.scrollHeight,
+150
+) + 'px';
+
+};
+
+recognition.onend = ()=>{
+
+listening = false;
+
+document
+.getElementById("micBtn")
+.classList
+.remove("listening");
+
+};
+
+}
+
+function toggleMic(){
+
+if(!recognition){
+
+alert(
+"Speech recognition not supported"
+);
+
+return;
+
+}
+
+const mic =
+document.getElementById(
+"micBtn"
+);
+
+if(listening){
+
+recognition.stop();
+
+return;
+
+}
+
+listening = true;
+
+mic.classList.add(
+"listening"
+);
+
+recognition.start();
+
+}
 const inp = document.getElementById('inp');
 const btn = document.getElementById('sendBtn');
 const msgs = document.getElementById('msgs');
