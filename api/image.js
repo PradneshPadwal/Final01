@@ -34,45 +34,43 @@ export default async function handler(req, res) {
   try {
 
     const response = await fetch(
-
       `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/black-forest-labs/flux-1-schnell`,
-
       {
         method: "POST",
-
         headers: {
           Authorization: `Bearer ${apiToken}`,
           "Content-Type": "application/json"
         },
-
         body: JSON.stringify({
           prompt
         })
-
       }
-
     );
 
     if (!response.ok) {
 
-      const err = await response.text();
+      let error;
+
+      try {
+        error = await response.json();
+      } catch {
+        error = {
+          raw: await response.text()
+        };
+      }
 
       return res.status(response.status).json({
-        error: err
+        status: response.status,
+        error
       });
-
     }
 
-    const image = await response.arrayBuffer();
+    const imageBuffer = await response.arrayBuffer();
 
-    const base64 =
-      Buffer.from(image).toString("base64");
+    const base64 = Buffer.from(imageBuffer).toString("base64");
 
     return res.status(200).json({
-
-      image:
-        `data:image/png;base64,${base64}`
-
+      image: `data:image/png;base64,${base64}`
     });
 
   } catch (err) {
