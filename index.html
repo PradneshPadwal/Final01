@@ -48,13 +48,6 @@ header{
   background:rgba(4,7,8,.48);backdrop-filter:blur(18px) saturate(130%);
 }
 .logo{display:flex;align-items:center;gap:11px}
-.logo-mark{
-  width:34px;height:34px;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(67,242,207,.06);border:1px solid rgba(67,242,207,.28);
-  box-shadow:0 0 24px rgba(67,242,207,.08);
-}
-.logo-mark svg{width:16px;height:16px}
 .logo-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-0.3px;color:var(--t1)}
 .logo-name em{color:var(--g);font-style:normal}
 
@@ -336,13 +329,7 @@ color:black;
   .logo {
     gap: 8px;
   }
-
-  .logo-mark {
-    width: 30px;
-    height: 30px;
-  }
-
-  .logo-name {
+.logo-name {
     font-size: 14px;
   }
 
@@ -362,15 +349,9 @@ color:black;
 
   <header>
     <div class="logo">
-      <div class="logo-mark">
-        <svg viewBox="0 0 16 16" fill="none">
-          <path d="M8 1L1 4.5V8L8 11.5L15 8V4.5L8 1Z" stroke="#00e87a" stroke-width="1.2"/>
-          <path d="M1 8L8 11.5L15 8" stroke="#00a855" stroke-width="1.2"/>
-        </svg>
-      </div>
-      <div class="logo-name">Pradnesh<em> AI</em></div>
+<div class="logo-name">Pradnesh<em> AI</em></div>
     </div>
-   
+
   </header>
 
   <div class="chat" id="chat">
